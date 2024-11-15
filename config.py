@@ -1,8 +1,11 @@
 # config.py
 
-# AWS Lambda and IAM ARNs
-LAMBDA_BASE_ARN = "arn:aws:lambda:us-east-1:746669213641:function:nrt"
-SCHEDULE_CLI_ARN = "arn:aws:iam::746669213641:role/nrt-scheduler-cli-role"
+# AWS account id
+AWS_ACCOUNT_ID = "746669213641"
+
+LAMBDA_BASE_ARN = f"arn:aws:lambda:us-east-1:{AWS_ACCOUNT_ID}:function:nrt"
+SCHEDULE_CLI_ARN = f"arn:aws:iam::{AWS_ACCOUNT_ID}:role/nrt-scheduler-cli-role"
+
 
 # Timezone and other constants
 TIMEZONE = "Asia/Kolkata"
