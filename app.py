@@ -1,10 +1,11 @@
 # app.py
-from flask import Flask, request, render_template
 import scheduler  # Import the scheduler module
 import config  # Import the config module
 import logging
 from datetime import datetime
 import pytz
+from flask import Flask, render_template, request, redirect, url_for
+
 
 app = Flask(__name__)
 
@@ -17,7 +18,24 @@ logging.basicConfig(
 # Route to render the HTML form
 @app.route("/")
 def index():
-    return render_template("index.html")
+    # Retrieve existing schedules
+    schedules = scheduler.get_existing_schedules()
+    # Print the schedules to the console for debugging
+    print("Schedules fetched:", schedules)
+    return render_template("index.html", schedules=schedules)
+
+
+# Route to handle schedule deletion
+@app.route('/delete_schedule', methods=['POST'])
+def delete_schedule():
+    schedule_name = request.form['schedule_name']
+    # Logic to delete the schedule
+    try:
+        delete_schedule_from_db(schedule_name)
+        return render_template('index.html', result=f"Schedule {schedule_name} deleted successfully!", schedules=get_schedules())
+    except Exception as e:
+        return render_template('index.html', result="Error deleting schedule.", schedules=get_schedules())
+
 
 
 @app.route("/schedule", methods=["POST"])

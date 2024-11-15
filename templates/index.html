@@ -117,6 +117,44 @@
             {{ result }}
         </div>
         {% endif %}
+
+        <!-- New Section: Existing Schedules Table -->
+        <h3 class="text-center mt-5">Existing Schedules</h3>
+        <div class="table-responsive mt-3">
+            <table class="table table-striped">
+                <thead>
+                        <tr class="text-center"> <!-- Center-align header row -->
+                        <th>Environment</th>
+                        <th>Service</th>
+                        <th>State</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if schedules %}
+                    {% for schedule in schedules %}
+                    <tr class="text-center"> <!-- Center-align each table row -->
+                        <td>{{ schedule.env }}</td>
+                        <td>{{ schedule.name }}</td>
+                        <td>{{ schedule.state }}</td>
+                        <td>
+                            <!-- Delete button linked to the delete route with the schedule name -->
+                            <form action="/delete_schedule" method="post" style="display: inline;">
+                                <input type="hidden" name="schedule_name" value="{{ schedule.name }}">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">No schedules available.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <!-- End of Existing Schedules Table -->
     </div>
 
     <!-- Bootstrap JS (optional, for advanced Bootstrap components) -->

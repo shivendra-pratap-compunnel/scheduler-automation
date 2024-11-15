@@ -58,3 +58,62 @@ def schedule_service(env, func_type, service, start_date, end_date, schedule_tim
     # Log success message
     logging.info("Schedule created successfully.")
     return "Schedule created successfully."
+
+
+# scheduler.py
+
+def parse_schedule_name(schedule_name):
+    """
+    Extract details from the schedule name assuming it follows the pattern:
+    "<env>-<func_type>-<service>-<date>"
+    """
+    parts = schedule_name.split("-")
+    if len(parts) >= 3:
+        return {
+            "env": parts[0],
+            "func_type": parts[1],
+            "service": parts[2],
+            "date": "-".join(parts[3:]),
+        }
+    return {
+        "env": "Unknown",
+        "func_type": "Unknown",
+        "service": "Unknown",
+        "date": "Unknown",
+    }
+
+
+def get_existing_schedules():
+    client = boto3.client("scheduler", region_name="us-east-1")
+    schedules = []
+    paginator = client.get_paginator("list_schedules")
+
+    for page in paginator.paginate():
+        for schedule in page.get("Schedules", []):
+            # Parse schedule name to extract environment, function type, and service type
+            parsed_schedule = parse_schedule_name(schedule.get("Name", ""))
+            schedules.append(
+                {
+                    "env": parsed_schedule["env"],
+                    "name": schedule.get("Name", "Unknown"),
+                    "state": schedule.get("State", "Unknown"),
+                }
+            )
+
+    return schedules
+
+
+def delete_schedule(schedule_name):
+    client = boto3.client("scheduler", region_name="us-east-1")
+
+    try:
+        # Delete the schedule by its name
+        client.delete_schedule(Name=schedule_name)
+        logger.info("Schedule deleted successfully: %s", schedule_name)
+        return f"Schedule {schedule_name} deleted successfully."
+    except client.exceptions.ResourceNotFoundException:
+        logger.error("Schedule not found: %s", schedule_name)
+        return f"Schedule {schedule_name} not found."
+    except Exception as e:
+        logger.error("Error deleting schedule %s: %s", schedule_name, str(e))
+        return f"Failed to delete schedule {schedule_name}. Error: {str(e)}"
